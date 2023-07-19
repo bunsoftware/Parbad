@@ -28,6 +28,7 @@ More information: https://github.com/Sina-Soltani/Parbad
 
   <PropertyGroup>
     <NoWarn>1701;1702;1591</NoWarn>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
