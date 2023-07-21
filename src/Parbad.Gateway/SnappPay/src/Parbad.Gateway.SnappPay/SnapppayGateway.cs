@@ -10,7 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -36,31 +38,37 @@ namespace Parbad.Gateway.Snapppay
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
+
         public override async Task<IPaymentFetchResult> FetchAsync(InvoiceContext context, CancellationToken cancellationToken = default)
         {
             var account = await GetAccountAsync(context.Payment);
+            return null;
         }
+
 
         public override async Task<IPaymentRefundResult> RefundAsync(InvoiceContext context, Money amount, CancellationToken cancellationToken = default)
         {
             var account = await GetAccountAsync(context.Payment);
-
+            return null;
         }
 
         public override async Task<IPaymentRequestResult> RequestAsync(Invoice invoice, CancellationToken cancellationToken = default)
         {
             var account = await GetAccountAsync(invoice);
-            var token = await _httpClient.GetSnapppayToken(account, _gatewayOptions);
-            var data = SnapppayHelper.CreateRequestModel(account, invoice);           
-            var request = await _httpClient.PostJsonAsync(_gatewayOptions.ApiTokenUrl, data, DefaultSerializerSettings, cancellationToken);
-            var responseMessage = await _httpClient.PostAsync("", null, cancellationToken);
+            var tokenRequest = await _httpClient.GetSnapppayToken(account, _gatewayOptions);
+            var token = await tokenRequest.Content.ReadAsStringAsync();
 
+            var data = SnapppayHelper.CreateRequestModel(account, invoice);
+            SnapppayHelper.AssignHeaders(_httpClient.DefaultRequestHeaders, account, token);
+            var request = await _httpClient.PostJsonAsync(_gatewayOptions.ApiTokenUrl, data, DefaultSerializerSettings, cancellationToken);
+            return await SnapppayHelper.CreateRequestResult(request, _httpContextAccessor.HttpContext, account);
         }
 
         public override async Task<IPaymentVerifyResult> VerifyAsync(InvoiceContext context, CancellationToken cancellationToken = default)
         {
             var account = await GetAccountAsync(context.Payment);
             var httpContext = _httpContextAccessor.HttpContext;
+            return null;
         }
     }
 }

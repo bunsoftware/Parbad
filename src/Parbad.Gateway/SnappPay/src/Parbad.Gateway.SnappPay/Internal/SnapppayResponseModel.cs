@@ -6,10 +6,16 @@ using System.Threading.Tasks;
 
 namespace Parbad.Gateway.Snapppay.Internal
 {
-    public class SnapppayRequestResponseModel<T>
+    public class SnapppayResponseModel<T>
     {
         public bool Successful { get; set; }
         public T Response { get; set; }
+       
+    }
+
+    public class SnappPayErroreResponseModel
+    {
+        public bool Successful { get; set; }
         public ErrorData ErrorData { get; set; }
     }
 
