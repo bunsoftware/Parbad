@@ -1,4 +1,5 @@
-﻿using Parbad.GatewayBuilders;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Parbad.GatewayBuilders;
 using Parbad.InvoiceBuilder;
 using System;
 using System.Collections.Generic;
@@ -10,19 +11,33 @@ namespace Parbad.Gateway.Snapppay
 {
     public static class SnapppayGatewayBuilderExtensions
     {
-        public static IGatewayConfigurationBuilder<SnapppayGateway> AddHero(this IGatewayBuilder builder)
+        /// <param name="builder"></param>
+        public static IGatewayConfigurationBuilder<SnapppayGateway> AddSnapppay(this IGatewayBuilder builder)
         {
-            return builder.AddGateway<SnapppayGateway>();
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            return builder
+                .AddGateway<SnapppayGateway>()
+                .WithHttpClient(clientBuilder => { })
+                .WithOptions(options => { });
         }
 
-        public static IGatewayConfigurationBuilder<SnapppayGateway> WithAccounts(this IGatewayConfigurationBuilder<SnapppayGateway> builder, Action<IGatewayAccountBuilder<SnapppayGatewayAccount>> configureAccounts)
+        public static IGatewayConfigurationBuilder<SnapppayGateway> WithAccounts(
+            this IGatewayConfigurationBuilder<SnapppayGateway> builder,
+            Action<IGatewayAccountBuilder<SnapppayGatewayAccount>> configureAccounts)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             return builder.WithAccounts(configureAccounts);
         }
 
-        public static IInvoiceBuilder UseHero(this IInvoiceBuilder builder)
+        public static IGatewayConfigurationBuilder<SnapppayGateway> WithOptions(
+    this IGatewayConfigurationBuilder<SnapppayGateway> builder,
+    Action<SnapppayGatewayOptions> configureOptions)
         {
-            return builder.SetGateway("Hero");
+            builder.Services.Configure(configureOptions);
+
+            return builder;
         }
     }
 }
